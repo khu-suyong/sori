@@ -17,9 +17,16 @@ class SoriAppBar extends StatelessWidget {
           vertical: AppSpace.s2,
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('Sori', style: AppTextStyle.h3),
-            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(AppSpace.s2),
+              child: Text(
+                'Sori',
+                style: AppTextStyle.h3.copyWith(fontWeight: AppFontWeight.bold),
+              ),
+            ),
             Row(children: actions),
           ],
         ),

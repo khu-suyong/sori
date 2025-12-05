@@ -16,9 +16,9 @@ class SoriAppLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: AppColors.white,
-      child: SafeArea(child: Column(children: [appBar, child])),
+    return Scaffold(
+      backgroundColor: AppColors.gray100,
+      body: SafeArea(child: Column(children: [appBar, child])),
     );
   }
 }

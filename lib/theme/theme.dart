@@ -23,17 +23,17 @@ class AppColors {
   static const Color slate950 = Color(0xFF020617);
 
   // Gray
-  static const Color gray50 = Color(0xFFF9FAFB);
-  static const Color gray100 = Color(0xFFF3F4F6);
-  static const Color gray200 = Color(0xFFE5E7EB);
-  static const Color gray300 = Color(0xFFD1D5DB);
-  static const Color gray400 = Color(0xFF9CA3AF);
-  static const Color gray500 = Color(0xFF6B7280);
-  static const Color gray600 = Color(0xFF4B5563);
-  static const Color gray700 = Color(0xFF374151);
-  static const Color gray800 = Color(0xFF1F2937);
-  static const Color gray900 = Color(0xFF111827);
-  static const Color gray950 = Color(0xFF030712);
+  static const Color gray50 = Color(0xFFFAFAFA);
+  static const Color gray100 = Color(0xFFF5F5F5);
+  static const Color gray200 = Color(0xFFE5E5E5);
+  static const Color gray300 = Color(0xFFD4D4D4);
+  static const Color gray400 = Color(0xFFA3A3A3);
+  static const Color gray500 = Color(0xFF737373);
+  static const Color gray600 = Color(0xFF525252);
+  static const Color gray700 = Color(0xFF404040);
+  static const Color gray800 = Color(0xFF262626);
+  static const Color gray900 = Color(0xFF171717);
+  static const Color gray950 = Color(0xFF0A0A0A);
 
   // Zinc
   static const Color zinc50 = Color(0xFFFAFAFA);
@@ -47,19 +47,6 @@ class AppColors {
   static const Color zinc800 = Color(0xFF27272A);
   static const Color zinc900 = Color(0xFF18181B);
   static const Color zinc950 = Color(0xFF09090B);
-
-  // Neutral
-  static const Color neutral50 = Color(0xFFFAFAFA);
-  static const Color neutral100 = Color(0xFFF5F5F5);
-  static const Color neutral200 = Color(0xFFE5E5E5);
-  static const Color neutral300 = Color(0xFFD4D4D4);
-  static const Color neutral400 = Color(0xFFA3A3A3);
-  static const Color neutral500 = Color(0xFF737373);
-  static const Color neutral600 = Color(0xFF525252);
-  static const Color neutral700 = Color(0xFF404040);
-  static const Color neutral800 = Color(0xFF262626);
-  static const Color neutral900 = Color(0xFF171717);
-  static const Color neutral950 = Color(0xFF0A0A0A);
 
   // Stone
   static const Color stone50 = Color(0xFFFAFAF9);
@@ -357,6 +344,8 @@ class AppFontWeight {
   static const FontWeight extrabold = FontWeight.w800;
   static const FontWeight black = FontWeight.w900;
 }
+
+// Custom
 
 class AppTextStyle {
   static const h1 = TextStyle(
