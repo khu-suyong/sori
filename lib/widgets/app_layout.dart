@@ -18,7 +18,14 @@ class SoriAppLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.gray100,
-      body: SafeArea(child: Column(children: [appBar, child])),
+      body: SafeArea(
+        child: Column(
+          children: [
+            appBar,
+            Expanded(child: child),
+          ],
+        ),
+      ),
     );
   }
 }

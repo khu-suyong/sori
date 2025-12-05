@@ -400,3 +400,11 @@ class AppTextStyle {
     color: AppColors.gray500,
   );
 }
+
+class AppShadow {
+  static final base = BoxShadow(
+    color: AppColors.black.withValues(alpha: 0.05),
+    blurRadius: AppSpace.s1,
+    offset: const Offset(0, 2),
+  );
+}
