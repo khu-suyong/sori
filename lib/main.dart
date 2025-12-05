@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'pages/home_page.dart';
+import 'pages/home/page.dart';
 
 void main() {
   runApp(MyApp());
@@ -17,6 +17,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(routerConfig: _router, title: 'Sori');
+    return MaterialApp.router(
+      routerConfig: _router,
+      title: 'Sori',
+      theme: ThemeData(fontFamily: 'Pretendard'),
+    );
   }
 }

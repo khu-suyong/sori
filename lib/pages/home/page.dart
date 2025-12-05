@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../widgets/app_bar.dart';
+import '../../widgets/app_layout.dart';
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(padding: EdgeInsets.all(8), child: Text('Home'));
+    return const SoriAppLayout(child: Text('Home'));
   }
 }
