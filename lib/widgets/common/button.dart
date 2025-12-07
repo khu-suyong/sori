@@ -116,7 +116,7 @@ class AppButton extends StatelessWidget {
       case AppButtonVariant.secondary:
         return AppColors.slate100.withOpacity(0.8);
       case AppButtonVariant.link:
-        return null; // Handle underline separately if needed, or just standard ink
+        return null;
     }
   }
 
