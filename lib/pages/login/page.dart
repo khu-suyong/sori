@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
-import 'package:go_router/go_router.dart';
 import 'package:sori/constants.dart';
 import 'package:sori/theme/theme.dart';
 import 'package:sori/widgets/common/common.dart';
-import 'package:sori/services/global_storage.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -32,7 +30,7 @@ class LoginPage extends StatelessWidget {
 
                     final appAuth = FlutterAppAuth();
 
-                    final result = await appAuth.authorize(
+                    await appAuth.authorize(
                       AuthorizationRequest(
                         'google',
                         redirectUri,

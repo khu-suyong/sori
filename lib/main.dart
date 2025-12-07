@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:app_links/app_links.dart';
 import 'package:sori/services/global_storage.dart';
-import 'pages/workspace/(id)/page.dart';
+import 'pages/workspace/id/page.dart';
 import 'pages/login/page.dart';
 import 'pages/splash/page.dart';
 import 'pages/workspace/page.dart';

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sori/api/dio_client.dart';
 import 'package:sori/models/sori_item.dart';
 import 'package:sori/models/workspace.dart';
-import 'package:sori/pages/workspace/(id)/_widgets/sori_card.dart';
+import 'package:sori/models/folder.dart';
+import 'package:sori/pages/workspace/id/_widgets/item_grid.dart';
 import 'package:sori/theme/theme.dart';
 import 'package:sori/widgets/app_bar.dart';
 
@@ -23,6 +23,10 @@ class _HomePageState extends State<HomePage> {
   List<SoriItem> items = [];
   Workspace? workspace;
 
+  // Navigation State
+  String? currentFolderId;
+  List<Map<String, String>> breadcrumbs = []; // [{id: '...', name: '...'}]
+
   bool isLoading = true;
 
   @override
@@ -34,7 +38,10 @@ class _HomePageState extends State<HomePage> {
   Future<void> _fetchData() async {
     final dioClient = DioClient();
     Workspace? fetchedWorkspace;
-    List<SoriItem> soriItems = [];
+
+    setState(() {
+      isLoading = true;
+    });
 
     try {
       fetchedWorkspace = await dioClient.client.getWorkspace(
@@ -42,32 +49,73 @@ class _HomePageState extends State<HomePage> {
       );
     } catch (e) {
       debugPrint('Error fetching workspace: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('워크스페이스 정보를 불러오는데 실패했습니다: $e')));
+      }
     }
-
-    fetchedWorkspace?.folders.forEach((it) {
-      soriItems.add(
-        SoriItem(type: SoriItemType.folder, id: it.id, name: it.name),
-      );
-    });
-    fetchedWorkspace?.notes.forEach((it) {
-      soriItems.add(
-        SoriItem(type: SoriItemType.note, id: it.id, name: it.name),
-      );
-    });
 
     if (mounted) {
       setState(() {
         workspace = fetchedWorkspace;
-        items = soriItems;
         isLoading = false;
       });
+      _updateItems();
     }
   }
 
+  void _updateItems() {
+    if (workspace == null) return;
+
+    List<SoriItem> newItems = [];
+    if (currentFolderId == null) {
+      workspace!.folders.forEach((f) {
+        newItems.add(
+          SoriItem(type: SoriItemType.folder, id: f.id, name: f.name),
+        );
+      });
+      workspace!.notes.forEach((n) {
+        newItems.add(SoriItem(type: SoriItemType.note, id: n.id, name: n.name));
+      });
+    } else {
+      final folder = _findFolderById(workspace!.folders, currentFolderId!);
+      if (folder != null) {
+        folder.children.forEach((f) {
+          newItems.add(
+            SoriItem(type: SoriItemType.folder, id: f.id, name: f.name),
+          );
+        });
+        folder.notes.forEach((n) {
+          newItems.add(
+            SoriItem(type: SoriItemType.note, id: n.id, name: n.name),
+          );
+        });
+      }
+    }
+
+    setState(() {
+      items = newItems;
+    });
+  }
+
+  Folder? _findFolderById(List<Folder> folders, String id) {
+    for (var folder in folders) {
+      if (folder.id == id) return folder;
+      final found = _findFolderById(folder.children, id);
+      if (found != null) return found;
+    }
+    return null;
+  }
+
   Future<void> _createFolder(String name) async {
+    final body = <String, dynamic>{'name': name};
+    if (currentFolderId != null) {
+      body['parentId'] = currentFolderId!;
+    }
     try {
       final dioClient = DioClient();
-      await dioClient.client.createFolder(widget.workspaceId, {'name': name});
+      await dioClient.client.createFolder(widget.workspaceId, body);
       _fetchData();
     } catch (e) {
       debugPrint('Error creating folder: $e');
@@ -80,12 +128,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _createNote(String name) async {
+    final body = <String, dynamic>{'name': name, 'contents': []};
+    if (currentFolderId != null) {
+      body['parentId'] = currentFolderId!;
+    }
     try {
       final dioClient = DioClient();
-      await dioClient.client.createNote(widget.workspaceId, {
-        'name': name,
-        'contents': [],
-      });
+      await dioClient.client.createNote(widget.workspaceId, body);
       _fetchData();
     } catch (e) {
       debugPrint('Error creating note: $e');
@@ -95,6 +144,37 @@ class _HomePageState extends State<HomePage> {
         ).showSnackBar(const SnackBar(content: Text('노트 생성에 실패했습니다.')));
       }
     }
+  }
+
+  void _onItemClick(SoriItem item) {
+    if (item.type == SoriItemType.folder) {
+      setState(() {
+        breadcrumbs.add({'id': item.id, 'name': item.name});
+        currentFolderId = item.id;
+      });
+      _updateItems();
+    } else {
+      // Handle note click (e.g., open note)
+      debugPrint('Clicked note: ${item.name}');
+    }
+  }
+
+  void _navigateToBreadcrumb(int index) {
+    if (index == -1) {
+      // Home
+      setState(() {
+        breadcrumbs.clear();
+        currentFolderId = null;
+      });
+    } else {
+      // Go to specific breadcrumb
+      setState(() {
+        final target = breadcrumbs[index];
+        currentFolderId = target['id'];
+        breadcrumbs = breadcrumbs.sublist(0, index + 1);
+      });
+    }
+    _updateItems();
   }
 
   void _showCreateDialog(bool isFolder) {
@@ -223,7 +303,61 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [const AppTextField(hintText: '노트 검색하기')],
+              children: [
+                const AppTextField(hintText: '노트 검색하기'),
+                const SizedBox(height: AppSpace.s4),
+                // Breadcrumbs
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => _navigateToBreadcrumb(-1),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.home,
+                              size: 16,
+                              color: AppColors.gray600,
+                            ),
+                            const SizedBox(width: AppSpace.s2),
+                            Text(
+                              workspace?.name ?? '...',
+                              style: AppTextStyle.body.copyWith(
+                                color: AppColors.gray600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ...breadcrumbs.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final crumb = entry.value;
+                        return GestureDetector(
+                          onTap: () => _navigateToBreadcrumb(index),
+                          child: Row(
+                            children: [
+                              const SizedBox(width: AppSpace.s2),
+                              Icon(
+                                Icons.chevron_right,
+                                size: 16,
+                                color: AppColors.gray400,
+                              ),
+                              const SizedBox(width: AppSpace.s2),
+                              Text(
+                                crumb['name']!,
+                                style: AppTextStyle.body.copyWith(
+                                  color: AppColors.gray600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -233,14 +367,9 @@ class _HomePageState extends State<HomePage> {
                   )
                 : Padding(
                     padding: const EdgeInsets.all(AppSpace.s4),
-                    child: MasonryGridView.count(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: AppSpace.s4,
-                      crossAxisSpacing: AppSpace.s4,
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        return SoriCard(item: items[index]);
-                      },
+                    child: SoriItemGrid(
+                      items: items,
+                      onItemClick: _onItemClick,
                     ),
                   ),
           ),
