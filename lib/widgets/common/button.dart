@@ -47,7 +47,7 @@ class AppButton extends StatelessWidget {
           alignment: Alignment.center,
           decoration: variant == AppButtonVariant.outline
               ? BoxDecoration(
-                  border: Border.all(color: AppColors.slate200),
+                  border: Border.all(color: AppColors.gray200),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 )
               : null,
@@ -70,15 +70,15 @@ class AppButton extends StatelessWidget {
 
   Color _getBackgroundColor() {
     if (disabled) {
-      return AppColors.slate100;
+      return AppColors.gray100;
     }
     switch (variant) {
       case AppButtonVariant.defaultVariant:
-        return AppColors.slate900;
+        return AppColors.gray900;
       case AppButtonVariant.destructive:
         return AppColors.red500;
       case AppButtonVariant.secondary:
-        return AppColors.slate100;
+        return AppColors.white;
       case AppButtonVariant.outline:
       case AppButtonVariant.ghost:
       case AppButtonVariant.link:
@@ -88,18 +88,18 @@ class AppButton extends StatelessWidget {
 
   Color _getTextColor() {
     if (disabled) {
-      return AppColors.slate400;
+      return AppColors.gray400;
     }
     switch (variant) {
       case AppButtonVariant.defaultVariant:
-        return AppColors.slate50;
+        return AppColors.gray50;
       case AppButtonVariant.destructive:
-        return AppColors.slate50;
+        return AppColors.gray50;
       case AppButtonVariant.outline:
       case AppButtonVariant.ghost:
       case AppButtonVariant.link:
       case AppButtonVariant.secondary:
-        return AppColors.slate900;
+        return AppColors.gray900;
     }
   }
 
@@ -107,14 +107,14 @@ class AppButton extends StatelessWidget {
     if (disabled) return null;
     switch (variant) {
       case AppButtonVariant.defaultVariant:
-        return AppColors.slate900.withOpacity(0.9);
+        return AppColors.gray900.withOpacity(0.9);
       case AppButtonVariant.destructive:
         return AppColors.red500.withOpacity(0.9);
       case AppButtonVariant.outline:
       case AppButtonVariant.ghost:
-        return AppColors.slate100;
+        return AppColors.gray100;
       case AppButtonVariant.secondary:
-        return AppColors.slate100.withOpacity(0.8);
+        return AppColors.gray100.withOpacity(0.8);
       case AppButtonVariant.link:
         return null;
     }
@@ -122,7 +122,7 @@ class AppButton extends StatelessWidget {
 
   Color? _getSplashColor() {
     if (disabled) return null;
-    return AppColors.slate200.withOpacity(0.2);
+    return AppColors.gray200.withOpacity(0.2);
   }
 
   Color? _getHighlightColor() {

@@ -8,6 +8,8 @@ import 'package:sori/models/note.dart';
 import 'package:sori/api/dio_client.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:sori/services/global_storage.dart';
 import 'package:sori/pages/workspace/id/note/_widgets/audio_waveform.dart';
@@ -39,6 +41,7 @@ class _NoteViewPageState extends State<NoteViewPage> {
   StreamSubscription? _socketSubscription;
 
   List<PublicNoteContent> segments = [];
+  List<PublicNoteContent> _realtimeSegments = [];
   String currentStreamingText = "";
 
   @override
@@ -101,6 +104,7 @@ class _NoteViewPageState extends State<NoteViewPage> {
 
     _socketSubscription = _webSocketService.stream?.listen(
       (message) {
+        debugPrint("received from Server $message");
         _handleServerMessage(message);
       },
       onError: (e) {
@@ -135,12 +139,33 @@ class _NoteViewPageState extends State<NoteViewPage> {
       currentStreamingText = "";
     });
 
-    // _fetchNote();
+    _fetchNote();
   }
 
   void _handleServerMessage(dynamic message) {
     try {
       final data = jsonDecode(message);
+
+      if (data is Map<String, dynamic> && data.containsKey('status')) {
+        final lines = data['lines'] as List<dynamic>? ?? [];
+        final buffer = data['buffer_transcription'] as String? ?? "";
+
+        setState(() {
+          _realtimeSegments = lines
+              .map(
+                (l) => PublicNoteContent(
+                  content: l['text'] as String? ?? "",
+                  rawContent: l['text'] as String? ?? "",
+                ),
+              )
+              .where((s) => s.content.trim().isNotEmpty)
+              .toList();
+
+          currentStreamingText = buffer;
+        });
+        return;
+      }
+
       final text = data['text'] as String?;
       final isFinal = data['is_final'] as bool? ?? false;
 
@@ -207,6 +232,7 @@ class _NoteViewPageState extends State<NoteViewPage> {
                     ),
                     itemCount:
                         segments.length +
+                        _realtimeSegments.length +
                         (currentStreamingText.isNotEmpty ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index < segments.length) {
@@ -223,13 +249,32 @@ class _NoteViewPageState extends State<NoteViewPage> {
                             ],
                           ),
                         );
+                      } else if (index <
+                          segments.length + _realtimeSegments.length) {
+                        final segment =
+                            _realtimeSegments[index - segments.length];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpace.s4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                segment.content,
+                                style: AppTextStyle.body.copyWith(
+                                  height: 1.6,
+                                  color: AppColors.gray700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
                       } else {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: AppSpace.s4),
                           child: Text(
                             currentStreamingText,
                             style: AppTextStyle.body.copyWith(
-                              color: AppColors.gray400,
+                              color: AppColors.gray700,
                               height: 1.6,
                             ),
                           ),

@@ -154,7 +154,7 @@ class _HomePageState extends State<HomePage> {
       });
       _updateItems();
     } else {
-      context.go('/workspace/${widget.workspaceId}/note/${item.id}');
+      context.push('/workspace/${widget.workspaceId}/note/${item.id}');
     }
   }
 
@@ -275,22 +275,22 @@ class _HomePageState extends State<HomePage> {
       appBar: SoriAppBar(
         logo: GestureDetector(
           onTap: () {
-            context.go('/workspace');
+            context.push('/workspace');
           },
           child: Row(
             children: [
               Icon(Icons.menu, fill: 0, color: AppColors.gray900),
               const SizedBox(width: AppSpace.s2),
-              Text('Sori / ${workspace?.name}', style: AppTextStyle.h3),
+              Text('Sori', style: AppTextStyle.h3),
             ],
           ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.person, fill: 0, color: AppColors.gray900),
             onPressed: () {
-              context.go('/login');
+              context.push('/settings');
             },
+            icon: const Icon(Icons.settings),
           ),
         ],
       ),

@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 
 class AudioRecorderService {
   final AudioRecorder _audioRecorder = AudioRecorder();
-  Stream<Uint8List>? _audioStream;
 
   Future<bool> hasPermission() async {
     final status = await Permission.microphone.request();

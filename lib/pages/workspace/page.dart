@@ -50,7 +50,7 @@ class _WorkspaceListPageState extends State<WorkspaceListPage> {
   Future<void> _onWorkspaceSelected(Workspace workspace) async {
     await GlobalStorage.saveLastWorkspaceId(workspace.id);
     if (mounted) {
-      context.go('/workspace/${workspace.id}/home');
+      context.push('/workspace/${workspace.id}/home');
     }
   }
 

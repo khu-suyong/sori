@@ -7,6 +7,7 @@ import 'pages/login/page.dart';
 import 'pages/splash/page.dart';
 import 'pages/workspace/page.dart';
 import 'pages/workspace/id/note/page.dart';
+import 'pages/settings/page.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,6 +19,10 @@ class MyApp extends StatelessWidget {
     routes: [
       GoRoute(path: '/', builder: (context, state) => const SplashPage()),
       GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsPage(),
+      ),
       GoRoute(
         path: '/workspace',
         builder: (context, state) => const WorkspaceListPage(),
