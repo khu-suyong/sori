@@ -27,7 +27,7 @@ class Note {
   final String name;
   final List<PublicNoteContent> contents;
 
-  Note({required this.id, required this.name, required this.contents});
+  Note({required this.id, required this.name, this.contents = const []});
 
   factory Note.fromJson(Map<String, dynamic> json) => _$NoteFromJson(json);
   Map<String, dynamic> toJson() => _$NoteToJson(this);

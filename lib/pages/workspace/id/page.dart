@@ -128,9 +128,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _createNote(String name) async {
-    final body = <String, dynamic>{'name': name, 'contents': []};
+    final body = <String, dynamic>{'name': name};
     if (currentFolderId != null) {
-      body['parentId'] = currentFolderId!;
+      body['folderId'] = currentFolderId!;
     }
     try {
       final dioClient = DioClient();
@@ -154,20 +154,17 @@ class _HomePageState extends State<HomePage> {
       });
       _updateItems();
     } else {
-      // Handle note click (e.g., open note)
-      debugPrint('Clicked note: ${item.name}');
+      context.go('/workspace/${widget.workspaceId}/note/${item.id}');
     }
   }
 
   void _navigateToBreadcrumb(int index) {
     if (index == -1) {
-      // Home
       setState(() {
         breadcrumbs.clear();
         currentFolderId = null;
       });
     } else {
-      // Go to specific breadcrumb
       setState(() {
         final target = breadcrumbs[index];
         currentFolderId = target['id'];

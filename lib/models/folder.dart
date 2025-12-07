@@ -13,8 +13,8 @@ class Folder {
   Folder({
     required this.id,
     required this.name,
-    required this.notes,
-    required this.children,
+    this.notes = const [],
+    this.children = const [],
   });
 
   factory Folder.fromJson(Map<String, dynamic> json) => _$FolderFromJson(json);

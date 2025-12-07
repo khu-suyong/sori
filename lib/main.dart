@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:app_links/app_links.dart';
 import 'package:sori/services/global_storage.dart';
 import 'pages/workspace/id/page.dart';
 import 'pages/login/page.dart';
 import 'pages/splash/page.dart';
 import 'pages/workspace/page.dart';
+import 'pages/workspace/id/note/page.dart';
 
 void main() {
   runApp(MyApp());
@@ -23,11 +23,34 @@ class MyApp extends StatelessWidget {
         builder: (context, state) => const WorkspaceListPage(),
       ),
       GoRoute(
-        path: '/workspace/:workspaceId/home',
-        builder: (context, state) {
-          final workspaceId = state.pathParameters['workspaceId']!;
-          return HomePage(workspaceId: workspaceId);
+        path: '/workspace/:workspaceId',
+        redirect: (context, state) {
+          final workspaceId = state.pathParameters['workspaceId'];
+          // Prevent infinite redirect if we are already at a sub-location handled by this route check
+          // actually this is a parent route.
+          // If the location matches exactly this path (no subroutes), redirect to home.
+          if (state.fullPath == '/workspace/$workspaceId') {
+            return '/workspace/$workspaceId/home';
+          }
+          return null;
         },
+        routes: [
+          GoRoute(
+            path: 'home',
+            builder: (context, state) {
+              final workspaceId = state.pathParameters['workspaceId']!;
+              return HomePage(workspaceId: workspaceId);
+            },
+          ),
+          GoRoute(
+            path: 'note/:noteId',
+            builder: (context, state) {
+              final workspaceId = state.pathParameters['workspaceId']!;
+              final noteId = state.pathParameters['noteId']!;
+              return NoteViewPage(workspaceId: workspaceId, noteId: noteId);
+            },
+          ),
+        ],
       ),
     ],
   );
@@ -42,10 +65,8 @@ class MyApp extends StatelessWidget {
       if (uri.scheme == 'sori' && uri.host == 'login-callback') {
         debugPrint('deeplink: $uri');
 
-        // sori://login-callback?accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJhdWQiOiJhcGkiLCJzdWIiOiJpMm42dG5ncjd2eHBtbnhibnpheGF5MzEiLCJpYXQiOjE3NjUwOTc4MTAsImV4cCI6MTc2NTEwMTQxMH0.1w72tNaPnHHtHva21DjFUFZJa_EuZkYfRrYNlwkerz4&refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJhdWQiOiJhdXRoIiwic3ViIjoiaTJuNnRuZ3I3dnhwbW54Ym56YXhheTMxIiwiaWF0IjoxNzY1MDk3ODEwLCJleHAiOjE3Njc2ODk4MTB9.dga3PUDn1QnamVs112D-CQK4YArRj8m4tT-HEpzK78k&userId=i2n6tngr7vxpmnxbnzaxay31
         final accessToken = uri.queryParameters['accessToken'];
         final refreshToken = uri.queryParameters['refreshToken'];
-        // final userId = uri.queryParameters['userId'];
 
         if (accessToken != null && refreshToken != null) {
           debugPrint("token: $accessToken $refreshToken");

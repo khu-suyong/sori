@@ -8,6 +8,7 @@ class AppColors {
   static const Color transparent = Color(0x00000000);
   static const Color black = Color(0xFF000000);
   static const Color white = Color(0xFFFFFFFF);
+  static const Color danger = red500;
 
   // Slate
   static const Color slate50 = Color(0xFFF8FAFC);

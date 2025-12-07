@@ -16,8 +16,8 @@ class Workspace {
     required this.id,
     required this.name,
     this.image,
-    required this.notes,
-    required this.folders,
+    this.notes = const [],
+    this.folders = const [],
   });
 
   factory Workspace.fromJson(Map<String, dynamic> json) =>

@@ -25,9 +25,11 @@ Map<String, dynamic> _$PublicNoteContentToJson(PublicNoteContent instance) =>
 Note _$NoteFromJson(Map<String, dynamic> json) => Note(
       id: json['id'] as String,
       name: json['name'] as String,
-      contents: (json['contents'] as List<dynamic>)
-          .map((e) => PublicNoteContent.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      contents: (json['contents'] as List<dynamic>?)
+              ?.map(
+                  (e) => PublicNoteContent.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$NoteToJson(Note instance) => <String, dynamic>{

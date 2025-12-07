@@ -9,10 +9,12 @@ import app_links
 import flutter_appauth
 import flutter_secure_storage_macos
 import path_provider_foundation
+import record_darwin
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   AppLinksMacosPlugin.register(with: registry.registrar(forPlugin: "AppLinksMacosPlugin"))
   FlutterAppauthPlugin.register(with: registry.registrar(forPlugin: "FlutterAppauthPlugin"))
   FlutterSecureStoragePlugin.register(with: registry.registrar(forPlugin: "FlutterSecureStoragePlugin"))
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))
+  RecordPlugin.register(with: registry.registrar(forPlugin: "RecordPlugin"))
 }
