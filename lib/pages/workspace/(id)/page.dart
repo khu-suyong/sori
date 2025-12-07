@@ -36,41 +36,24 @@ class _HomePageState extends State<HomePage> {
     Workspace? fetchedWorkspace;
     List<SoriItem> soriItems = [];
 
-    // Fetch Workspace Details
     try {
       fetchedWorkspace = await dioClient.client.getWorkspace(
         widget.workspaceId,
       );
     } catch (e) {
       debugPrint('Error fetching workspace: $e');
-      // If workspace fetch fails, we can't really proceed with a valid UI title, but we can stop loading.
     }
 
-    // Fetch Contents
-    if (fetchedWorkspace != null) {
-      try {
-        final foldersFuture = dioClient.client.getFolders(widget.workspaceId);
-        final notesFuture = dioClient.client.getNotes(widget.workspaceId);
-
-        final results = await Future.wait([foldersFuture, notesFuture]);
-        final folders = results[0] as List<dynamic>;
-        final notes = results[1] as List<dynamic>;
-
-        for (var f in folders) {
-          soriItems.add(
-            SoriItem(type: SoriItemType.folder, id: f.id, name: f.name),
-          );
-        }
-
-        for (var n in notes) {
-          soriItems.add(
-            SoriItem(type: SoriItemType.note, id: n.id, name: n.name),
-          );
-        }
-      } catch (e) {
-        debugPrint('Error fetching contents: $e');
-      }
-    }
+    fetchedWorkspace?.folders.forEach((it) {
+      soriItems.add(
+        SoriItem(type: SoriItemType.folder, id: it.id, name: it.name),
+      );
+    });
+    fetchedWorkspace?.notes.forEach((it) {
+      soriItems.add(
+        SoriItem(type: SoriItemType.note, id: it.id, name: it.name),
+      );
+    });
 
     if (mounted) {
       setState(() {
@@ -81,9 +64,137 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _createFolder(String name) async {
+    try {
+      final dioClient = DioClient();
+      await dioClient.client.createFolder(widget.workspaceId, {'name': name});
+      _fetchData();
+    } catch (e) {
+      debugPrint('Error creating folder: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('폴더 생성에 실패했습니다.')));
+      }
+    }
+  }
+
+  Future<void> _createNote(String name) async {
+    try {
+      final dioClient = DioClient();
+      await dioClient.client.createNote(widget.workspaceId, {
+        'name': name,
+        'contents': [],
+      });
+      _fetchData();
+    } catch (e) {
+      debugPrint('Error creating note: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('노트 생성에 실패했습니다.')));
+      }
+    }
+  }
+
+  void _showCreateDialog(bool isFolder) {
+    final nameController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.white,
+          title: Text(isFolder ? '폴더 생성' : '노트 생성', style: AppTextStyle.h3),
+          content: TextField(
+            controller: nameController,
+            decoration: InputDecoration(
+              hintText: '이름을 입력하세요',
+              hintStyle: AppTextStyle.body.copyWith(color: AppColors.gray400),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColors.gray300),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColors.black),
+              ),
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                '취소',
+                style: AppTextStyle.body.copyWith(color: AppColors.gray500),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                if (nameController.text.trim().isNotEmpty) {
+                  if (isFolder) {
+                    _createFolder(nameController.text.trim());
+                  } else {
+                    _createNote(nameController.text.trim());
+                  }
+                }
+              },
+              child: Text(
+                '생성',
+                style: AppTextStyle.body.copyWith(
+                  color: AppColors.black,
+                  fontWeight: AppFontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showCreateOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.folder, color: AppColors.black),
+                title: const Text('폴더 생성', style: AppTextStyle.body),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showCreateDialog(true);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.note, color: AppColors.black),
+                title: const Text('노트 생성', style: AppTextStyle.body),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showCreateDialog(false);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SoriAppLayout(
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showCreateOptions,
+        backgroundColor: AppColors.black,
+        child: const Icon(Icons.add, color: AppColors.white),
+      ),
       appBar: SoriAppBar(
         logo: GestureDetector(
           onTap: () {
