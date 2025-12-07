@@ -58,6 +58,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _logout() async {
     await GlobalStorage.deleteTokens();
+    await GlobalStorage.deleteLastWorkspaceId();
     if (mounted) context.go('/login');
   }
 

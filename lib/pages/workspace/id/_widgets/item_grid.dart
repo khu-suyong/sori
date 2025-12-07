@@ -7,11 +7,15 @@ import 'package:sori/theme/theme.dart';
 class SoriItemGrid extends StatelessWidget {
   final List<SoriItem> items;
   final Function(SoriItem) onItemClick;
+  final Function(SoriItem) onEdit;
+  final Function(SoriItem) onDelete;
 
   const SoriItemGrid({
     super.key,
     required this.items,
     required this.onItemClick,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -33,7 +37,11 @@ class SoriItemGrid extends StatelessWidget {
         final item = items[index];
         return GestureDetector(
           onTap: () => onItemClick(item),
-          child: SoriCard(item: item),
+          child: SoriCard(
+            item: item,
+            onEdit: () => onEdit(item),
+            onDelete: () => onDelete(item),
+          ),
         );
       },
     );

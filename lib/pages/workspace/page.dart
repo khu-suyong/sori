@@ -129,7 +129,16 @@ class _WorkspaceListPageState extends State<WorkspaceListPage> {
   @override
   Widget build(BuildContext context) {
     return SoriAppLayout(
-      appBar: const SoriAppBar(),
+      appBar: SoriAppBar(
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.push('/settings');
+            },
+            icon: const Icon(Icons.settings),
+          ),
+        ],
+      ),
       child: Center(
         child: isLoading
             ? const CircularProgressIndicator(color: AppColors.black)

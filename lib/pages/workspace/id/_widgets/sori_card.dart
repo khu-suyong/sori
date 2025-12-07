@@ -6,8 +6,10 @@ enum SoriCardVariant { note, folder }
 
 class SoriCard extends StatelessWidget {
   final SoriItem item;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
-  const SoriCard({super.key, required this.item});
+  const SoriCard({super.key, required this.item, this.onEdit, this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +25,38 @@ class SoriCard extends StatelessWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Icon(_icon, color: _iconColor, size: 24)],
+            children: [
+              Icon(_icon, color: _iconColor, size: 24),
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    onEdit?.call();
+                  } else if (value == 'delete') {
+                    onDelete?.call();
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(value: 'edit', child: Text('이름 변경')),
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Text(
+                      '삭제',
+                      style: TextStyle(color: AppColors.red500),
+                    ),
+                  ),
+                ],
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Icon(
+                    Icons.more_vert,
+                    color: AppColors.gray400,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: AppSpace.s4),
+          const SizedBox(height: AppSpace.s4),
           Text(
             item.name,
             style: AppTextStyle.h3,

@@ -146,6 +146,70 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _updateFolder(String folderId, String name) async {
+    try {
+      final dioClient = DioClient();
+      await dioClient.client.updateFolder(widget.workspaceId, folderId, {
+        'name': name,
+      });
+      _fetchData();
+    } catch (e) {
+      debugPrint('Error updating folder: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('폴더 수정에 실패했습니다.')));
+      }
+    }
+  }
+
+  Future<void> _deleteFolder(String folderId) async {
+    try {
+      final dioClient = DioClient();
+      await dioClient.client.deleteFolder(widget.workspaceId, folderId);
+      _fetchData();
+    } catch (e) {
+      debugPrint('Error deleting folder: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('폴더 삭제에 실패했습니다.')));
+      }
+    }
+  }
+
+  Future<void> _updateNote(String noteId, String name) async {
+    try {
+      final dioClient = DioClient();
+      await dioClient.client.updateNote(widget.workspaceId, noteId, {
+        'name': name,
+      });
+      _fetchData();
+    } catch (e) {
+      debugPrint('Error updating note: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('노트 수정에 실패했습니다.')));
+      }
+    }
+  }
+
+  Future<void> _deleteNote(String noteId) async {
+    try {
+      final dioClient = DioClient();
+      await dioClient.client.deleteNote(widget.workspaceId, noteId);
+      _fetchData();
+    } catch (e) {
+      debugPrint('Error deleting note: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('노트 삭제에 실패했습니다.')));
+      }
+    }
+  }
+
   void _onItemClick(SoriItem item) {
     if (item.type == SoriItemType.folder) {
       setState(() {
@@ -264,6 +328,111 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _editItem(SoriItem item) {
+    final nameController = TextEditingController(text: item.name);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.white,
+          title: Text(
+            item.type == SoriItemType.folder ? '폴더 이름 변경' : '노트 이름 변경',
+            style: AppTextStyle.h3,
+          ),
+          content: TextField(
+            controller: nameController,
+            decoration: InputDecoration(
+              hintText: '이름을 입력하세요',
+              hintStyle: AppTextStyle.body.copyWith(color: AppColors.gray400),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColors.gray300),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColors.black),
+              ),
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                '취소',
+                style: AppTextStyle.body.copyWith(color: AppColors.gray500),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                if (nameController.text.trim().isNotEmpty) {
+                  if (item.type == SoriItemType.folder) {
+                    _updateFolder(item.id, nameController.text.trim());
+                  } else {
+                    _updateNote(item.id, nameController.text.trim());
+                  }
+                }
+              },
+              child: Text(
+                '변경',
+                style: AppTextStyle.body.copyWith(
+                  color: AppColors.black,
+                  fontWeight: AppFontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deleteItem(SoriItem item) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.white,
+          title: Text(
+            item.type == SoriItemType.folder ? '폴더 삭제' : '노트 삭제',
+            style: AppTextStyle.h3,
+          ),
+          content: Text(
+            item.type == SoriItemType.folder
+                ? '정말로 이 폴더를 삭제하시겠습니까?\n내부의 모든 내용이 삭제됩니다.'
+                : '정말로 이 노트를 삭제하시겠습니까?',
+            style: AppTextStyle.body.copyWith(color: AppColors.gray600),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                '취소',
+                style: AppTextStyle.body.copyWith(color: AppColors.gray500),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                if (item.type == SoriItemType.folder) {
+                  _deleteFolder(item.id);
+                } else {
+                  _deleteNote(item.id);
+                }
+              },
+              child: Text(
+                '삭제',
+                style: AppTextStyle.body.copyWith(
+                  color: AppColors.red500,
+                  fontWeight: AppFontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SoriAppLayout(
@@ -367,6 +536,8 @@ class _HomePageState extends State<HomePage> {
                     child: SoriItemGrid(
                       items: items,
                       onItemClick: _onItemClick,
+                      onEdit: _editItem,
+                      onDelete: _deleteItem,
                     ),
                   ),
           ),
